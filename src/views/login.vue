@@ -25,21 +25,27 @@
 				<div class="login-btn">
 					<el-button type="primary" @click="submitForm(login)">登录</el-button>
 				</div>
-				<p class="login-tips">Tips : 用户名和密码随便填。</p>
+				<p class="login-tips"></p>
 			</el-form>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import {
+  ref, reactive, onBeforeMount,
+  getCurrentInstance, ComponentInternalInstance,
+} from 'vue';
 import { useTagsStore } from '../store/tags';
 import { usePermissStore } from '../store/permiss';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import { Lock, User } from '@element-plus/icons-vue';
+import axios, {AxiosResponse} from "axios";
 
+
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
 interface LoginInfo {
 	username: string;
 	password: string;
@@ -47,8 +53,8 @@ interface LoginInfo {
 
 const router = useRouter();
 const param = reactive<LoginInfo>({
-	username: 'admin',
-	password: '123123'
+	username: '9Rgc6TN2',
+	password: 't5LJ3D9O'
 });
 
 const rules: FormRules = {
@@ -63,21 +69,68 @@ const rules: FormRules = {
 };
 const permiss = usePermissStore();
 const login = ref<FormInstance>();
+
+function statusDetection(res: AxiosResponse<any, any>):Boolean {
+  switch (res.data["status"]) {
+    case "OK":
+      return true;
+    case "WARRING":
+      ElMessage.error("警告! "+res.data["statusCode"] +": "+ res.data["message"]);
+      break;
+    case "FAILED":
+      ElMessage.error(res.data["statusCode"] +": "+ res.data["message"]);
+      break;
+    case "ERROR":
+      ElMessage.error("错误! "+res.data["statusCode"] +": "+ res.data["message"]);
+      break;
+  }
+  return false;
+}
+
 const submitForm = (formEl: FormInstance | undefined) => {
-	if (!formEl) return;
-	formEl.validate((valid: boolean) => {
-		if (valid) {
-			ElMessage.success('登录成功');
-			localStorage.setItem('ms_username', param.username);
-			const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'user'];
-			permiss.handleSet(keys);
-			localStorage.setItem('ms_keys', JSON.stringify(keys));
-			router.push('/');
-		} else {
-			ElMessage.error('登录成功');
-			return false;
-		}
-	});
+  // axios.get("http://localhost:8080/test").then()
+  axios.post(proxy?.$baseURL+'/user/login?username='+param.username+'&password='+param.password+'').then((res)=>{
+    if (statusDetection(res)){
+      localStorage.setItem('jwtToken', res.data["data"]["token"]);
+
+      let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: 'http://localhost:8080/user/info',
+        headers: {
+          'token': localStorage.getItem('jwtToken')
+        }
+      };
+
+      axios.request(config)
+          .then((response) => {
+            // localStorage.setItem('ms_username', response.data['name']);
+            localStorage.setItem('ms_username', response.data['data']['name']);
+            const keys = permiss.defaultList[response.data['data']['name'].indexOf('admin')?'admin':'user'];
+            permiss.handleSet(keys);
+            localStorage.setItem('ms_keys', JSON.stringify(keys));
+            router.push('/');
+          })
+          .catch((error) => {
+            ElMessage.error("错误! "+error);
+          });
+    }
+  })
+
+
+	// formEl.validate((valid: boolean) => {
+	// 	if (valid) {
+	// 		ElMessage.success('登录成功');
+	// 		localStorage.setItem('ms_username', param.username);
+	// 		const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'user'];
+	// 		permiss.handleSet(keys);
+	// 		localStorage.setItem('ms_keys', JSON.stringify(keys));
+	// 		router.push('/');
+	// 	} else {
+	// 		ElMessage.error('登录成功');
+	// 		return false;
+	// 	}
+	// });
 };
 
 const tags = useTagsStore();

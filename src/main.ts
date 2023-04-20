@@ -6,10 +6,21 @@ import router from './router';
 import { usePermissStore } from './store/permiss';
 import 'element-plus/dist/index.css';
 import './assets/css/icon.css';
+import axios from "axios";
 
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);
+
+app.config.globalProperties.$jwtToken = "";
+
+axios.get('./config.json').then(data => {
+    app.config.globalProperties.$baseURL = data.data.baseURL;
+    console.log('挂载后端地址',app.config.globalProperties.$baseURL)
+    console.log('挂载后端socket',app.config.globalProperties.$baseWS)
+}).catch(error => {
+    console.log(error);
+})
 
 // 注册elementplus图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
@@ -24,5 +35,7 @@ app.directive('permiss', {
         }
     },
 });
+
+
 
 app.mount('#app');

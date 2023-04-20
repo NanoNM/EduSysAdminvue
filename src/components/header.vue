@@ -51,6 +51,8 @@ import imgurl from '../assets/img/img.jpg';
 
 const username: string | null = localStorage.getItem('ms_username');
 const message: number = 2;
+import axios, {AxiosResponse} from "axios";
+import {ElMessage} from "element-plus";
 
 const sidebar = useSidebarStore();
 // 侧边栏折叠
@@ -68,10 +70,32 @@ onMounted(() => {
 const router = useRouter();
 const handleCommand = (command: string) => {
 	if (command == 'loginout') {
-		localStorage.removeItem('ms_username');
+
+
+    let config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: 'http://localhost:8080/user/lgout',
+      headers: {
+        'token': localStorage.getItem('jwtToken')
+      }
+    };
+
+    axios.request(config)
+        .then((response) => {
+          if (response.data['status'] == 'ok'){
+            localStorage.removeItem('ms_username');
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('ms_keys');
+          }
+        })
+        .catch((error) => {
+          ElMessage.error("错误! "+error);
+        });
+    ElMessage.success("登出成功");
 		router.push('/login');
 	} else if (command == 'user') {
-		router.push('/user');
+		// router.push('/user');
 	}
 };
 </script>
