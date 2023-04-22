@@ -5,7 +5,7 @@
 			<el-icon v-if="sidebar.collapse"><Expand /></el-icon>
 			<el-icon v-else><Fold /></el-icon>
 		</div>
-		<div class="logo">后台管理系统</div>
+		<div class="logo">{{role}}</div>
 		<div class="header-right">
 			<div class="header-user-con">
 				<!-- 消息中心 -->
@@ -51,6 +51,9 @@ import imgurl from '../assets/img/img.jpg';
 
 const username: string | null = localStorage.getItem('ms_username');
 const message: number = 2;
+
+const role : string | null= '后台系统 '+localStorage.getItem('ms_role');
+
 import axios, {AxiosResponse} from "axios";
 import {ElMessage} from "element-plus";
 
@@ -64,6 +67,7 @@ onMounted(() => {
 	if (document.body.clientWidth < 1500) {
 		collapseChage();
 	}
+  console.log(role)
 });
 
 // 用户名下拉菜单选择事件

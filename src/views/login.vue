@@ -104,12 +104,21 @@ const submitForm = (formEl: FormInstance | undefined) => {
 
       axios.request(config)
           .then((response) => {
-            // localStorage.setItem('ms_username', response.data['name']);
+            localStorage.setItem('user_info', JSON.stringify(response.data['data']));
             localStorage.setItem('ms_username', response.data['data']['name']);
-            const keys = permiss.defaultList[response.data['data']['name'].indexOf('admin')?'admin':'user'];
+            let role = response.data['data']['role']=='admin:super'?'admin_super':response.data['data']['role'].indexOf('teacher')!=-1?'teacher':'user'
+            localStorage.setItem('ms_role', role);
+            const keys = permiss.defaultList[
+                response.data['data']['role']=='admin:super'?'admin_super':response.data['data']['role'].indexOf('teacher')!=-1?'teacher':'user'
+                ];
             permiss.handleSet(keys);
             localStorage.setItem('ms_keys', JSON.stringify(keys));
-            router.push('/');
+            if (role == 'teacher'){
+              router.push('/teacher');
+            }else {
+              router.push('/admin');
+            }
+
           })
           .catch((error) => {
             ElMessage.error("错误! "+error);

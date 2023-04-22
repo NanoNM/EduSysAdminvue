@@ -16,6 +16,8 @@ app.config.globalProperties.$jwtToken = "";
 
 axios.get('./config.json').then(data => {
     app.config.globalProperties.$baseURL = data.data.baseURL;
+    app.config.globalProperties.$baseWS = data.data.baseWS;
+
     console.log('挂载后端地址',app.config.globalProperties.$baseURL)
     console.log('挂载后端socket',app.config.globalProperties.$baseWS)
 }).catch(error => {

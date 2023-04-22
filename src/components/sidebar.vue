@@ -55,54 +55,55 @@ import { computed } from 'vue';
 import { useSidebarStore } from '../store/sidebar';
 import { useRoute } from 'vue-router';
 
-const items = [
-    {
-      icon: 'Calendar',
-      index: '1',
-      title: '成员相关',
-      permiss: '1',
-      subs: [
-        {
-          index: '/std-manger',
-          title: '学生管理',
-          permiss: '1',
-        },
-        {
-          index: '/teacher-manger',
-          title: '教师管理',
-          permiss: '1',
-        },
-        {
-          index: '/import',
-          title: '导入Excel',
-          permiss: '1',
-        },
-        {
-          index: '/export',
-          title: '导出Excel',
-          permiss: '1',
-        },
-      ],
-    },
+const admin=[
 
-    {
-      icon: 'Calendar',
-      index: '2',
-      title: '考试相关',
-      permiss: '1',
-      subs: [
-        {
-          index: '/',
-          title: '发布考试通知',
-          permiss: '1',
-        },
-        {
-          index: '/',
-          title: '成绩管理',
-          permiss: '1',
-        },
-      ],
-    },
+  {
+    icon: 'Calendar',
+    index: '1',
+    title: '成员相关',
+    permiss: '1',
+    subs: [
+      {
+        index: '/std-manger',
+        title: '学生管理',
+        permiss: '1',
+      },
+      {
+        index: '/teacher-manger',
+        title: '教师管理',
+        permiss: '1',
+      },
+      {
+        index: '/import',
+        title: '导入Excel',
+        permiss: '1',
+      },
+      {
+        index: '/export',
+        title: '导出Excel',
+        permiss: '1',
+      },
+    ],
+  },
+
+  {
+    icon: 'Calendar',
+    index: '2',
+    title: '考试相关',
+    permiss: '1',
+    subs: [
+      {
+        index: '/',
+        title: '发布考试通知',
+        permiss: '1',
+      },
+      {
+        index: '/',
+        title: '成绩管理',
+        permiss: '1',
+      },
+    ],
+  },
 
   {
     icon: 'Calendar',
@@ -127,7 +128,31 @@ const items = [
       },
     ],
   },
+
 ];
+
+const teacher=[
+  {
+    icon: 'Calendar',
+    index: '3',
+    title: '老师相关',
+    permiss: '2',
+    subs: [
+      {
+        index: '/teacher/class-manger',
+        title: '我的班级',
+        permiss: '2',
+      },
+      {
+        index: '/teacher/course-manger',
+        title: '我的学科',
+        permiss: '2',
+      },
+    ],
+  },
+];
+
+const items = localStorage.getItem('ms_role')=='admin_super'?admin:teacher;
 
 const route = useRoute();
 const onRoutes = computed(() => {

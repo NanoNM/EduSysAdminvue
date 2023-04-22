@@ -2,24 +2,24 @@
   <div>
     <div class="container">
       <div class="handle-box">
-        <span style="margin-left: 1%" class="label">系：</span>
-        <el-select v-model="dept2" @change="" style="margin-right: 1%">
-          <el-option v-for="dept in depts2" :label="dept['deptName']" :value="dept['id']"></el-option>
-        </el-select>
+<!--        <span style="margin-left: 1%" class="label">系：</span>-->
+<!--        <el-select v-model="dept2" @change="" style="margin-right: 1%">-->
+<!--          <el-option v-for="dept in depts2" :label="dept['deptName']" :value="dept['id']"></el-option>-->
+<!--        </el-select>-->
 
-        <el-input v-model="query.className" placeholder="班级名" class="handle-input mr10"></el-input>
-        <span class="mr10">
-          <span style="margin-left: 1%" class="label">年级：</span>
-          <el-select v-model="grade" @change="handleChange2">
-            <el-option v-for="grade in grades" :label="grade['gradeName']" :value="grade['gradeName']"></el-option>
-          </el-select>
-        </span>
-
-
+<!--        <el-input v-model="query.className" placeholder="班级名" class="handle-input mr10"></el-input>-->
+<!--        <span class="mr10">-->
+<!--          <span style="margin-left: 1%" class="label">年级：</span>-->
+<!--          <el-select v-model="grade" @change="handleChange2">-->
+<!--            <el-option v-for="grade in grades" :label="grade['gradeName']" :value="grade['gradeName']"></el-option>-->
+<!--          </el-select>-->
+<!--        </span>-->
 <!--        <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>-->
-        <el-button type="primary" :icon="Plus"  @click="insertClass">新增</el-button>
 
-        <div style="*-+margin-top: 1%">
+        <div style="margin-top: 1%">
+          <div style="margin-bottom: 1%">
+            加入班级
+          </div>
           <span class="label">状态：</span>
           <el-select v-model="status" @change="handleChange1">
             <el-option label="正常的" value="normal"></el-option>
@@ -35,24 +35,45 @@
           <el-select v-model="dept" @change="handleChange3">
             <el-option v-for="dept in depts" :label="dept['deptName']" :value="dept['id']"></el-option>
           </el-select>
+
+          <span style="margin-left: 1%" class="label">班级：</span>
+          <el-select v-model="clazz" @change="">
+            <el-option v-for="clazz in tableData" :label="clazz['className']" :value="clazz['id']"></el-option>
+          </el-select>
+
+          <el-button style="margin-left: 1%" type="primary" :icon="Plus"  @click="insertClass">加入班级</el-button>
         </div>
-
-
       </div>
 
 
-      <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+      <div style="margin-bottom: 1%">
+        我的班级
+      </div>
+
+      <el-table :data="myClass" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+
         <el-table-column #default="scope" prop="id" label="ID" width="55" align="center">{{scope.$index+((query.pageIndex-1)*8)+1}}</el-table-column>
         <el-table-column prop="className" label="班级名"></el-table-column>
 
         <el-table-column prop="createTime" label="创建时间"></el-table-column>
         <el-table-column prop="modifyTime" label="编辑时间"></el-table-column>
 
-        <el-table-column label="操作" width="220" align="center">
+        <el-table-column label="操作" width="420" align="center">
           <template #default="scope">
-            <el-button text :icon="Edit" @click="addToMyClass(scope.$index, scope.row)" v-permiss="15">
-              添加到我的班级
+            <el-button v-if="scope.row['counsellorId'] == null" text :icon="Edit" @click="toBeCounselor(scope.$index, scope.row)" v-permiss="2">
+              成为导员
             </el-button>
+            <el-button v-else-if="scope.row['counsellorId'] === JSON.parse(userID)['id']" text :icon="Edit" @click="retiredCounselor(scope.$index, scope.row)" v-permiss="2">
+              卸任导员
+            </el-button>
+            <el-button v-else text :icon="Edit" @click="toBeCounselor(scope.$index, scope.row)" v-permiss="2">
+
+            </el-button>
+
+            <el-button text :icon="Delete" @click="handleDelete(scope.$index, scope.row)" v-permiss="2">
+              退出班级
+            </el-button>
+
             <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
               编辑
             </el-button>
@@ -99,9 +120,9 @@
 import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
-import { fetchData } from '../api/index';
+import { fetchData } from '../../api/index';
 import axios, {AxiosResponse} from "axios";
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
 
@@ -114,6 +135,10 @@ let depts = ref<string[]>([]);
 
 let dept2 = ref<string[]>('');
 let depts2 = ref<string[]>([]);
+
+
+let clazz = ref<string[]>('');
+
 
 
 interface TableItem {
@@ -131,10 +156,16 @@ const query = reactive({
   className: '',
   grade: '',
   pageIndex: 1,
-  pageSize: 10
+  pageSize: 10000
 });
 const tableData = ref<TableItem[]>([]);
+
+const myClass = ref<TableItem[]>([]);
+
 const pageTotal = ref(0);
+
+const userID:string|null = localStorage.getItem("user_info");
+
 
 // 获取表格数据
 const getData = (page:any,st:any) => {
@@ -156,7 +187,28 @@ const getData = (page:any,st:any) => {
 
 
 };
-getData(1,null);
+// getData(1,null);
+
+const getMyClass = () => {
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'http://localhost:8080/teacher/getclass',
+    headers: globeHeaders
+  };
+
+  axios.request(config)
+      .then((response) => {
+        myClass.value = response.data['data']
+        console.log();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+};
+
+getMyClass()
+
 // 查询操作
 const handleSearch = () => {
   query.pageIndex = 1;
@@ -168,17 +220,20 @@ const handlePageChange = (val: number) => {
   getData(val,null);
 };
 
+// 教师加入班级
 const insertClass = () => {
+  console.log(clazz)
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/admin/create/class?grade='+grade.value+'&name='+query.className+'&dept='+dept2.value,
-    headers: { }
+    url: 'http://localhost:8080/teacher/joinclass?classid='+clazz.value,
+    headers: globeHeaders,
   };
 
   axios.request(config)
       .then((response) => {
         console.log(JSON.stringify(response.data));
+        getMyClass()
       })
       .catch((error) => {
         console.log(error);
@@ -186,28 +241,30 @@ const insertClass = () => {
 
 }
 
-// 删除操作
+// 退出班级
 const handleDelete = (index: number,row: any) => {
   // 二次确认删除
   ElMessageBox.confirm('确定要删除吗？', '提示', {
     type: 'warning'
   })
       .then(() => {
-
         let config = {
           method: 'get',
           maxBodyLength: Infinity,
-          url: 'http://localhost:8080/admin/delete/user?userno='+row.userNo,
-          headers: { }
+          url: 'http://localhost:8080/teacher/deleteClass?classid='+row.id,
+          headers: globeHeaders
         };
 
         axios.request(config)
             .then((response) => {
               console.log(JSON.stringify(response.data));
+              getMyClass()
             })
             .catch((error) => {
               console.log(error);
             });
+
+
 
         ElMessage.success('删除成功');
         tableData.value.splice(index, 1);
@@ -223,11 +280,44 @@ let form = reactive({
 });
 let idx: number = -1;
 
-// 将班级加入到我的班级
-const addToMyClass = (index: number, row: any) => {
-  console.log(row.id)
+// 成为导员
+const toBeCounselor = (index: number, row: any) => {
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'http://localhost:8080/teacher/regcor?classid='+row.id,
+    headers: globeHeaders
+  };
+
+  axios.request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        getMyClass()
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
 }
 
+// 卸任导员
+const retiredCounselor = (index: number, row: any) => {
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'http://localhost:8080/teacher/retirecor?classid='+row.id,
+    headers: globeHeaders
+  };
+
+  axios.request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        getMyClass()
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+}
 
 const handleEdit = (index: number, row: any) => {
   console.log(row)
@@ -236,13 +326,9 @@ const handleEdit = (index: number, row: any) => {
   form.year = grade.value;
   editVisible.value = true;
 };
-// 保存编辑的老师
-const saveEdit = () => {
 
 
-
-};
-
+// 设置年级状态
 const handleChange1 = (val: string[]) => {
   let url = 'http://localhost:8080/grades?status='+status.value
 
@@ -263,6 +349,7 @@ const handleChange1 = (val: string[]) => {
       });
 };
 
+//获取正常的年级
 const getSelectGrade = () => {
   let url = 'http://localhost:8080/grades?status=normal'
 
@@ -285,6 +372,7 @@ const getSelectGrade = () => {
 
 getSelectGrade();
 
+// 设置年级
 const handleChange2 = (val: string[]) => {
   let config = {
     method: 'get',
@@ -304,6 +392,7 @@ const handleChange2 = (val: string[]) => {
 
 };
 
+// 设置系
 const handleChange3 = (val: string[]) => {
   let config = {
     method: 'get',
@@ -324,7 +413,6 @@ const handleChange3 = (val: string[]) => {
 };
 
 const getAllDept = () =>{
-
   let config = {
     method: 'get',
     maxBodyLength: Infinity,

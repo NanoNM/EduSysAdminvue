@@ -2,9 +2,11 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import { usePermissStore } from '../store/permiss';
 import Home from '../views/home.vue';
 
+import Teacher_Home from '../views/teacher/teacher_home.vue';
+
 const routes: RouteRecordRaw[] = [
     {
-        path: '/',
+        path: '/admin',
         redirect: '/std-manger',
     },
     {
@@ -56,6 +58,22 @@ const routes: RouteRecordRaw[] = [
                     permiss: '1',
                 },
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/garde-manger.vue'),
+            },
+        ],
+    },
+    {
+        path: '/teacher',
+        name: 'Teacher_Home',
+        component: Teacher_Home,
+        children: [
+            {
+                path: '/teacher/class-manger',
+                name: 'class-manger',
+                meta: {
+                    title: '我的班级',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/teacher/class-manger.vue'),
             },
         ],
     },
