@@ -14,6 +14,7 @@ const routes: RouteRecordRaw[] = [
         name: 'Home',
         component: Home,
         children: [
+
             {
                 path: '/std-manger',
                 name: 'std-manger',
@@ -59,6 +60,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/garde-manger.vue'),
             },
+            {
+                path: '/admin-course-manger',
+                name: 'admin-course-manger',
+                meta: {
+                    title: '课程管理(管理员)',
+                    permiss: '1',
+                },
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/course-manger.vue'),
+            },
         ],
     },
     {
@@ -75,8 +85,18 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/teacher/class-manger.vue'),
             },
+            {
+                path: '/teacher/course-manger',
+                name: 'course-manger',
+                meta: {
+                    title: '我的学科',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/teacher/course-manger.vue'),
+            },
         ],
     },
+
     {
         path: '/login',
         name: 'Login',

@@ -126,8 +126,17 @@ const admin=[
         title: '年级管理',
         permiss: '1',
       },
+
     ],
   },
+  {
+    icon: 'Calendar',
+    index: '/admin-course-manger',
+    title: '课程管理',
+    permiss: '1',
+  }
+
+
 
 ];
 
