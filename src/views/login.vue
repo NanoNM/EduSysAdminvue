@@ -23,9 +23,14 @@
 					</el-input>
 				</el-form-item>
 				<div class="login-btn">
-					<el-button type="primary" @click="submitForm(login)">登录</el-button>
-				</div>
-				<p class="login-tips"></p>
+          <el-button type="primary" @click="submitForm(login)">登录</el-button>
+        </div>
+
+        <div class="login-btn">
+          <el-button type="text" @click="goToReg(login)">老师注册</el-button>
+        </div>
+
+        <p class="login-tips"></p>
 			</el-form>
 		</div>
 	</div>
@@ -53,8 +58,8 @@ interface LoginInfo {
 
 const router = useRouter();
 const param = reactive<LoginInfo>({
-	username: '9Rgc6TN2',
-	password: 't5LJ3D9O'
+	username: 'evI0GC7Z',
+	password: '7Hcul8aF'
 });
 
 const rules: FormRules = {
@@ -87,6 +92,10 @@ function statusDetection(res: AxiosResponse<any, any>):Boolean {
   return false;
 }
 
+const goToReg = () => {
+  router.push('/register');
+}
+
 const submitForm = (formEl: FormInstance | undefined) => {
   // axios.get("http://localhost:8080/test").then()
   axios.post(proxy?.$baseURL+'/user/login?username='+param.username+'&password='+param.password+'').then((res)=>{
@@ -96,7 +105,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
       let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'http://localhost:8080/user/info',
+        url: proxy?.$baseURL+'/user/info',
         headers: {
           'token': localStorage.getItem('jwtToken')
         }

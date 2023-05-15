@@ -1,272 +1,172 @@
 <template>
-  <div>
-    <div class="container">
-      <div class="handle-box">
+  <div class="container">
+    <div class="handle-box">
+      <div style="margin-bottom: 1%">操作</div>
+      <span style="margin-left: 1%" class="label">系名：</span>
+      <el-input v-model="createDeptName" placeholder="系名" class="handle-input mr10"></el-input>
+      <span style="margin-left: 1%" class="label">学制：</span>
+      <el-input v-model="eduSys" placeholder="学制" class="handle-input mr10"></el-input>
+      <el-button type="primary" :icon="Plus"  @click="createDept" class="">新增</el-button>
 
-        <el-input v-model="query.name" placeholder="班级名" class="handle-input mr10"></el-input>
-        <el-input v-model="query.empID" placeholder="年级" class="handle-input mr10"></el-input>
-<!--        <el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>-->
-        <el-button type="primary" :icon="Plus">新增</el-button>
-
-        <div style="margin-top: 1%">
-          <span class="label">状态：</span>
-          <el-select v-model="status" @change="handleChange1">
-            <el-option label="正常的" value="normal"></el-option>
-            <el-option label="结业的" value="graduated"></el-option>
-          </el-select>
-
-          <span style="margin-left: 1%" class="label">年级：</span>
-          <el-select v-model="grade" @change="handleChange2">
-            <el-option v-for="grade in grades" :label="grade['gradeName']" :value="grade['gradeName']"></el-option>
-          </el-select>
-        </div>
-
-
-      </div>
-
-
-      <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-        <el-table-column #default="scope" prop="id" label="ID" width="55" align="center">{{scope.$index+((query.pageIndex-1)*8)+1}}</el-table-column>
-        <el-table-column prop="className" label="班级名"></el-table-column>
-
-        <el-table-column prop="createTime" label="创建时间"></el-table-column>
-        <el-table-column prop="modifyTime" label="编辑时间"></el-table-column>
-
-        <el-table-column label="操作" width="220" align="center">
-          <template #default="scope">
-            <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
-              编辑
-            </el-button>
-            <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index,scope.row)" v-permiss="16">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <div class="pagination">
-        <el-pagination
-            background
-            layout="total, prev, pager, next, jumper"
-            :current-page="query.pageIndex"
-            :page-size="query.pageSize"
-            :total="pageTotal"
-            @current-change="handlePageChange"
-        ></el-pagination>
-      </div>
     </div>
 
-    <!-- 编辑弹出框 -->
-    <el-dialog title="编辑" v-model="editVisible" width="30%">
-      <el-form label-width="70px">
-        <el-form-item label="班级名">
-          <el-input v-model="form.className"></el-input>
-        </el-form-item>
-        <el-form-item label="年级">
-          <el-input v-model="form.year"></el-input>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-				<span class="dialog-footer">
-					<el-button @click="editVisible = false">取 消</el-button>
-					<el-button type="primary" @click="saveEdit">提 交</el-button>
-				</span>
-      </template>
-    </el-dialog>
+    <div class="handle-box">
+      <div style="margin-bottom: 1%">编辑</div>
+      <el-select v-model="selectedDept" @change="selectedDeptChange" class="mr10">
+        <el-option v-for="dept in depts" :label="dept['deptName']" :value="dept['id']"></el-option>
+      </el-select>
+      <span style="margin-left: 1%" class="label">学制：</span>
+      <el-input v-model="eduSysUpdate" placeholder="学制" class="handle-input mr10"></el-input>
+      <el-button type="primary" :icon="Plus"  @click="updateDept" class="">更新学制</el-button>
+
+      <el-button type="danger" :icon="Delete"  @click="deleteDept" class="">删除</el-button>
+
+    </div>
   </div>
 </template>
 
 <script setup lang="ts" name="basetable">
-import { ref, reactive } from 'vue';
+import {ref, reactive, getCurrentInstance, ComponentInternalInstance} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
 import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
+
 let headers = {
   'token':localStorage.getItem('jwtToken')
 }
 
-const status = ref<string>('normal');
-const grade = ref<string>('');
+const createDeptName = ref('')
+const eduSys = ref('4')
+const eduSysUpdate = ref('4')
 
-let grades = ref<string[]>([]);
+const selectedDept = ref('')
+const depts = ref();
 
-
-interface TableItem {
-  id: number;
-  name: string;
-  emp_id: string;
-  state: string;
-  create_time: string;
-  modify_time: string;
-  last_time: string;
-  role: string;
-}
-
-const query = reactive({
-  empID: '',
-  name: '',
-  pageIndex: 1,
-  pageSize: 10
-});
-const tableData = ref<TableItem[]>([]);
-const pageTotal = ref(0);
-
-// 获取表格数据
-const getData = (page:any,st:any) => {
+const selectedDeptChange = (val:Any) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page='+page,
+    url: 'http://localhost:8080/dept?id=' + val,
     headers: { }
   };
 
   axios.request(config)
       .then((response) => {
-        tableData.value = response.data['data']['data']['classes'];
-        pageTotal.value = response.data['data']['pageTotal'];
+        eduSysUpdate.value = response.data.data.eduSys
       })
       .catch((error) => {
         console.log(error);
       });
 
+  console.log(val)
+  // eduSysUpdate.value =val
+}
 
-};
-getData(1,null);
-// 查询操作
-const handleSearch = () => {
-  query.pageIndex = 1;
-  getData(1,null);
-};
-// 分页导航
-const handlePageChange = (val: number) => {
-  query.pageIndex = val;
-  getData(val,null);
-};
+const updateDept = () => {
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'http://localhost:8080/updatedept?deptid='+selectedDept.value+'&edusys='+eduSysUpdate.value,
+    headers: { }
+  };
 
-// 删除操作
-const handleDelete = (index: number,row: any) => {
-  // 二次确认删除
-  ElMessageBox.confirm('确定要删除吗？', '提示', {
+  axios.request(config)
+      .then((response) => {
+        if (response.data.status == "OK"){
+          getAllDept();
+          ElMessage.success(response.data.message);
+        }
+        else {
+          ElMessage.error(response.data.message);
+        }
+      })
+      .catch((error) => {
+        ElMessage.error(error.response.data.message);
+      });
+
+}
+
+const deleteDept = () => {
+  ElMessageBox.confirm('注意！删除可能会丢失这个系对应的诸多消息！！！！ 确定删除？', '提示', {
     type: 'warning'
   })
       .then(() => {
-
         let config = {
           method: 'get',
           maxBodyLength: Infinity,
-          url: 'http://localhost:8080/admin/delete/user?userno='+row.userNo,
+          url: 'http://localhost:8080/delete/dept?id=' + selectedDept.value,
           headers: { }
         };
 
         axios.request(config)
             .then((response) => {
-              console.log(JSON.stringify(response.data));
+              if (response.data.status == "OK"){
+                getAllDept();
+                ElMessage.success(response.data.message);
+              }
+              else {
+                ElMessage.error(response.data.message);
+              }
             })
             .catch((error) => {
-              console.log(error);
+              ElMessage.error(error.response.data.message);
             });
-
-        ElMessage.success('删除成功');
-        tableData.value.splice(index, 1);
       })
       .catch(() => {});
-};
-
-// 表格编辑时弹窗和保存
-const editVisible = ref(false);
-let form = reactive({
-  className: '',
-  year: '',
-});
-let idx: number = -1;
-const handleEdit = (index: number, row: any) => {
-  console.log(row)
-  idx = index;
-  form.className = row.className;
-  form.year = grade.value;
-  editVisible.value = true;
-};
-// 保存编辑的老师
-const saveEdit = () => {
+}
+const createDept = () => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/admin/update/teacher?userno='+form.userNo+'&username='+form.name+'&empID='+form.empID+'&role='+form.role,
+    url: 'http://localhost:8080/create/dept?deptname=' + createDeptName.value + '&edusys=' + eduSys.value,
     headers: { }
   };
 
   axios.request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
+        if (response.data.status == "OK"){
+          getAllDept();
+          ElMessage.success(response.data.message);
+        }
+        else {
+          ElMessage.error(response.data.message);
+        }
       })
       .catch((error) => {
-        console.log(error);
-      });
+        ElMessage.error(error.response.data.message);
 
-
-};
-
-const handleChange1 = (val: string[]) => {
-  let url = 'http://localhost:8080/grades?status='+status.value
-
-  let config = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: url,
-    headers: { }
-  };
-
-
-  axios.request(config)
-      .then((response) => {
-        grades.value = response.data["data"]
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-};
-
-const getSelectGrade = () => {
-  let url = 'http://localhost:8080/grades?status=normal'
-
-  let config = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: url,
-    headers: { }
-  };
-
-
-  axios.request(config)
-      .then((response) => {
-        grades.value = response.data["data"]
-      })
-      .catch((error) => {
-        console.log(error);
       });
 }
 
-getSelectGrade();
-
-const handleChange2 = (val: string[]) => {
+const getAllDept = () => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page=1',
+    url: 'http://localhost:8080/depts',
     headers: { }
   };
 
   axios.request(config)
       .then((response) => {
-          tableData.value = response.data['data']['data']['classes'];
-          pageTotal.value = response.data['data']['pageTotal'];
+        if (response.data.status == "OK"){
+          depts.value = response.data.data
+          ElMessage.success(response.data.message);
+        }
+        else {
+          ElMessage.error(response.data.message);
+        }
       })
       .catch((error) => {
-        console.log(error);
+        ElMessage.error(error.response.data.message);
+
       });
 
-};
+}
+getAllDept();
+
+
 </script>
 
 <style scoped>

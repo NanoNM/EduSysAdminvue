@@ -14,7 +14,6 @@ const routes: RouteRecordRaw[] = [
         name: 'Home',
         component: Home,
         children: [
-
             {
                 path: '/std-manger',
                 name: 'std-manger',
@@ -34,8 +33,8 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/teacher-manger.vue'),
             },
             {
-                path: '/class-manger',
-                name: 'class-manger',
+                path: '/admin-class-manger',
+                name: 'admin-class-manger',
                 meta: {
                     title: '班级管理',
                     permiss: '1',
@@ -69,6 +68,47 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/course-manger.vue'),
             },
+            {
+                path: '/course-manger',
+                name: 'course-manger',
+                meta: {
+                    title: '课程管理',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/course-manger.vue'),
+            },
+            {
+                path: '/exam-info-release',
+                name: 'exam-info-release',
+                meta: {
+                    title: '考试信息发布',
+                },
+                component: () => import(/* webpackChunkName: "login" */ '../views/teacher/exam/exam-info-release.vue'),
+            },
+            {
+                path: '/exam-result-release',
+                name: 'exam-result-release',
+                meta: {
+                    title: '考试结果发布',
+                },
+                component: () => import(/* webpackChunkName: "login" */ '../views/teacher/exam/exam-result-release.vue'),
+            },
+            {
+                path: '/edu-notice',
+                name: 'edu-notice',
+                meta: {
+                    title: '教务公告',
+                },
+                component: () => import(/* webpackChunkName: "login" */ '../views/edu-notice.vue'),
+            },
+            {
+                path: '/reg-key',
+                name: 'reg-key',
+                meta: {
+                    title: '教师注册Key',
+                },
+                component: () => import(/* webpackChunkName: "login" */ '../views/reg-key.vue'),
+            },
         ],
     },
     {
@@ -85,18 +125,17 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/teacher/class-manger.vue'),
             },
-            {
-                path: '/teacher/course-manger',
-                name: 'course-manger',
-                meta: {
-                    title: '我的学科',
-                    permiss: '2',
-                },
-                component: () => import(/* webpackChunkName: "dashboard" */ '../views/teacher/course-manger.vue'),
-            },
+            // {
+            //     path: '/teacher/course-manger',
+            //     name: 'course-manger',
+            //     meta: {
+            //         title: '我的学科',
+            //         permiss: '2',
+            //     },
+            //     component: () => import(/* webpackChunkName: "dashboard" */ '../views/teacher/course-manger.vue'),
+            // },
         ],
     },
-
     {
         path: '/login',
         name: 'Login',
@@ -104,6 +143,14 @@ const routes: RouteRecordRaw[] = [
             title: '登录',
         },
         component: () => import(/* webpackChunkName: "login" */ '../views/login.vue'),
+    },
+    {
+        path: '/register',
+        name: 'Register',
+        meta: {
+            title: '注册',
+        },
+        component: () => import(/* webpackChunkName: "login" */ '../views/register.vue'),
     },
     {
         path: '/403',

@@ -31,11 +31,13 @@
 </template>
 
 <script setup lang="ts" name="basetable">
-import { ref, reactive } from 'vue';
+import {ref, reactive, getCurrentInstance, ComponentInternalInstance} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
 import { fetchData } from '../../api/index';
 import axios, {AxiosResponse} from "axios";
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
+
 let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
@@ -88,7 +90,7 @@ const getMyClass = () => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/teacher/getclass',
+    url: proxy?.$baseURL+'/teacher/getclass',
     headers: globeHeaders
   };
 

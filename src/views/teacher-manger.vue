@@ -73,11 +73,13 @@
 </template>
 
 <script setup lang="ts" name="basetable">
-import { ref, reactive } from 'vue';
+import {ref, reactive, getCurrentInstance, ComponentInternalInstance} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
 import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
+
 let headers = {
   'token':localStorage.getItem('jwtToken')
 }
@@ -106,7 +108,7 @@ const getData = (page:number) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/admin/users?page='+page+'&role=thr',
+    url: proxy?.$baseURL+'/admin/users?page='+page+'&role=thr',
     headers: headers
   };
 
@@ -149,7 +151,7 @@ const handleDelete = (index: number,row: any) => {
         let config = {
           method: 'get',
           maxBodyLength: Infinity,
-          url: 'http://localhost:8080/admin/delete/user?userno='+row.userNo,
+          url: proxy?.$baseURL+'/admin/delete/user?userno='+row.userNo,
           headers: { }
         };
 
@@ -189,7 +191,7 @@ const saveEdit = () => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/admin/update/teacher?userno='+form.userNo+'&username='+form.name+'&empID='+form.empID+'&role='+form.role,
+    url: proxy?.$baseURL+'/admin/update/teacher?userno='+form.userNo+'&username='+form.name+'&empID='+form.empID+'&role='+form.role,
     headers: { }
   };
 

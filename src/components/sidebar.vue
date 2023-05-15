@@ -73,16 +73,16 @@ const admin=[
         title: '教师管理',
         permiss: '1',
       },
-      {
-        index: '/import',
-        title: '导入Excel',
-        permiss: '1',
-      },
-      {
-        index: '/export',
-        title: '导出Excel',
-        permiss: '1',
-      },
+      // {
+      //   index: '/import',
+      //   title: '导入Excel',
+      //   permiss: '1',
+      // },
+      // {
+      //   index: '/export',
+      //   title: '导出Excel',
+      //   permiss: '1',
+      // },
     ],
   },
 
@@ -93,12 +93,12 @@ const admin=[
     permiss: '1',
     subs: [
       {
-        index: '/',
+        index: '/exam-info-release',
         title: '发布考试通知',
         permiss: '1',
       },
       {
-        index: '/',
+        index: '/exam-result-release',
         title: '成绩管理',
         permiss: '1',
       },
@@ -112,7 +112,7 @@ const admin=[
     permiss: '1',
     subs: [
       {
-        index: '/class-manger',
+        index: '/admin-class-manger',
         title: '班级管理',
         permiss: '1',
       },
@@ -131,13 +131,29 @@ const admin=[
   },
   {
     icon: 'Calendar',
-    index: '/admin-course-manger',
-    title: '课程管理',
+    index:'4',
+    title:'课程管理',
     permiss: '1',
-  }
-
-
-
+    subs: [
+      {
+        index: '/admin-course-manger',
+        title: '课程管理',
+        permiss: '1',
+      }
+    ]
+  },
+  {
+    icon: 'Calendar',
+    index: '/edu-notice',
+    title: '教务公告',
+    permiss: '1',
+  },
+  {
+    icon: 'Calendar',
+    index: '/reg-key',
+    title: '教师注册key',
+    permiss: '1',
+  },
 ];
 
 const teacher=[
@@ -152,13 +168,44 @@ const teacher=[
         title: '我的班级',
         permiss: '2',
       },
+      // {
+      //   index: '/teacher/course-manger',
+      //   title: '我的学科',
+      //   permiss: '2',
+      // },
+    ],
+  },
+  {
+    icon: 'Calendar',
+    index: '2',
+    title: '考试相关',
+    permiss: '2',
+    subs: [
       {
-        index: '/teacher/course-manger',
-        title: '我的学科',
+        index: '/exam-info-release',
+        title: '发布考试通知',
+        permiss: '2',
+      },
+      {
+        index: '/exam-result-release',
+        title: '成绩管理',
         permiss: '2',
       },
     ],
   },
+  {
+    icon: 'Calendar',
+    index:'4',
+    title:'课程管理',
+    permiss: '2',
+    subs: [
+      {
+        index: '/course-manger',
+        title: '课程管理',
+        permiss: '2',
+      }
+    ]
+  }
 ];
 
 const items = localStorage.getItem('ms_role')=='admin_super'?admin:teacher;

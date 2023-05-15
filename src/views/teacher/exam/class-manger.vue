@@ -60,17 +60,16 @@
 
         <el-table-column label="操作" width="420" align="center">
           <template #default="scope">
-
-            <el-button text :icon="Edit" @click="thSchedule(scope.row)" v-permiss="2">
-              为其排课
-            </el-button>
-
             <el-button v-if="scope.row['counsellorId'] == null" text :icon="Edit" @click="toBeCounselor(scope.$index, scope.row)" v-permiss="2">
               成为导员
             </el-button>
             <el-button v-else-if="scope.row['counsellorId'] === JSON.parse(userID)['id']" text :icon="Edit" @click="retiredCounselor(scope.$index, scope.row)" v-permiss="2">
               卸任导员
             </el-button>
+            <el-button v-else text :icon="Edit" @click="toBeCounselor(scope.$index, scope.row)" v-permiss="2">
+
+            </el-button>
+
             <el-button text :icon="Delete" @click="handleDelete(scope.$index, scope.row)" v-permiss="2">
               退出班级
             </el-button>
@@ -78,7 +77,7 @@
             <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
               编辑
             </el-button>
-            <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index,scope.row)" v-permiss="15">
+            <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index,scope.row)" v-permiss="16">
               删除
             </el-button>
           </template>
@@ -96,51 +95,6 @@
         ></el-pagination>
       </div>
     </div>
-<!--    分配课程弹出框 -->
-    <el-dialog title="排课计划" v-model="planVisible" width="90%">
-      <el-form label-width="70px">
-        <div style="margin-bottom: 2%">当前课表 开课时间： {{opTimeStr}}
-          <el-button type="" @click="nowWeek -= 1">上 周</el-button>
-          当前周： {{nowWeek}}
-          <el-button type="" @click="nowWeek += 1">下 周</el-button>
-        </div>
-
-        <planning-class style="margin-bottom: 2%"
-                        :afternoon-length="5"
-                        :length="8"
-                        :events="events"
-        ></planning-class>
-
-        <div style="margin-bottom: 2%">插入课程</div>
-        <el-form-item label="课程名" >
-          <el-input v-model="insertCourse.courseName"></el-input>
-        </el-form-item>
-        <el-form-item label="周几">
-          <el-input v-model="insertCourse.week"></el-input>
-        </el-form-item>
-        <el-form-item label="上课">
-          <el-input v-model="insertCourse.sc"></el-input>
-        </el-form-item>
-        <el-form-item label="下课">
-          <el-input v-model="insertCourse.ec"></el-input>
-        </el-form-item>
-        <el-form-item label="位置">
-          <el-input v-model="insertCourse.local"></el-input>
-        </el-form-item>
-        <div style="margin-bottom: 2%">删除课程</div>
-        <el-form-item label="课程ID">
-          <el-input v-model="insertCourse.id"></el-input>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-				<span class="dialog-footer">
-					<el-button @click="planVisible = false">关闭页面</el-button>
-					<el-button type="primary" @click="insertPlan">插入课程</el-button>
-          <el-button type="danger" @click="removePlan">删除课程</el-button>
-
-				</span>
-      </template>
-    </el-dialog>
 
     <!-- 编辑弹出框 -->
     <el-dialog title="编辑" v-model="editVisible" width="30%">
@@ -163,17 +117,11 @@
 </template>
 
 <script setup lang="ts" name="basetable">
-import {ref, reactive, getCurrentInstance, ComponentInternalInstance, watch} from 'vue';
+import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
 import { fetchData } from '../../api/index';
 import axios, {AxiosResponse} from "axios";
-import PlanningClass from "./course/planning-class.vue";
-import {loadConfigFromFile} from "vite";
-
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance
-
 let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
@@ -191,8 +139,6 @@ let depts2 = ref<string[]>([]);
 
 let clazz = ref<string[]>('');
 
-const selectedClassid = ref();
-
 
 
 interface TableItem {
@@ -205,47 +151,6 @@ interface TableItem {
   last_time: string;
   role: string;
 }
-const events = ref()
-
-const allCourse = ref([
-    [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],
-])
-
-// 插入课程绑定
-const insertCourse= ref({
-  courseName:'',
-  week:'',
-  sc:'',
-  ec:'',
-  local:'',
-  weektimes:'',
-  id:''
-});
-
-const insertPlan = () => {
-  let config = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/course/insert?name='+
-        insertCourse.value.courseName+'&week='+
-        insertCourse.value.week+'&sc='+
-        insertCourse.value.sc+'&ec='+
-        insertCourse.value.ec+'&local='+
-        insertCourse.value.local+'&classid='+selectedClassid.value.id+
-        '&weektimes='+nowWeek.value,
-    headers: { }
-  };
-
-  axios.request(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-        getCourse(selectRow.value.id)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-}
-
 
 const query = reactive({
   className: '',
@@ -261,149 +166,13 @@ const pageTotal = ref(0);
 
 const userID:string|null = localStorage.getItem("user_info");
 
-// 本班开课时间
-const opTime = ref([]);
-const opTimeStr = ref();
-const nowWeek = ref();
-const selectRow = ref();
-
-watch(
-    nowWeek,
-    (newValue, oldValue) => {
-      getCourse(selectRow.value.id)
-    },
-    {
-      deep: false,
-    }
-);
-
-const thSchedule = (row:Any) => {
-  selectRow.value = row
-  selectedClassid.value = row
-  console.log(row.classYear)
-  let config = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/grade/optime?gradeid='+row.classYear,
-    headers: { }
-  };
-
-  axios.request(config)
-      .then((response) => {
-        // opTime.value = response.data
-        //
-        opTimeStr.value= ''+response.data['data'][0]+'-'+response.data['data'][1]+'-'+response.data['data'][2]
-        // var time = new Date(timeStr).getTime();
-        // console.log(time)
-        nowWeek.value = getNowWeek(response.data['data']);
-        getCourse(row.id)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-}
-
-// 获取课程数据
-const getCourse = (classid:Any) => {
-  let config = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/course/get?classid='+classid,
-    headers: { }
-  };
-
-  axios.request(config)
-      .then((response) => {
-
-        var dataList: never[]=[];
-        // allCourse.value = dataList
-        // console.log(events);
-
-        response.data['data'].forEach(it => {
-          var data = {
-            xq: it.week,
-            title: it.courseName,
-            class: 'sport',
-            content: '教室：' + it.local + '<br>课程id: '+ it.id,
-            start: it.startClass,
-            end: it.endClass
-          }
-          if (it.weekTimes == nowWeek.value){
-            dataList.push(data)
-          }
-          // dataList[it.weekTimes-1].push(data);
-          //
-          // allCourse.value = dataList
-
-        })
-
-        events.value = dataList
-        // console.log()
-        // console.log(events);
-        //  = allCourse.value[nowWeek.value]
-
-        planVisible.value = true
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-}
-
-//获取当前周
-const getNowWeek = (data:any) => {
-  var date = new Date();
-  let [year, month, day] = data
-  var start = new Date(year, month - 1, day);
-  // //计算时间差
-  var left_time = parseInt((date.getTime() - start.getTime()) / 1000) + 24 * 60 * 60;
-  //
-  var days = parseInt(left_time / 3600 / 24);
-  var week = Math.floor(days / 7) + 1;
-  var result = week
-  if (week > 20 || week <= 0) {
-    result = data.now_week;
-  }
-
-  return result;
-}
-
-// 删除课程
-const removePlan = () => {
-  // 二次确认删除
-  ElMessageBox.confirm('确定要删除吗？', '提示', {
-    type: 'warning'
-  })
-      .then(() => {
-        let config = {
-          method: 'get',
-          maxBodyLength: Infinity,
-          url: proxy?.$baseURL+'/course/delete?id='+insertCourse.value.id,
-          headers: { }
-        };
-
-        axios.request(config)
-            .then((response) => {
-              getCourse(selectRow.value.id)
-              console.log(JSON.stringify(response.data));
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-
-
-        ElMessage.success('删除成功');
-      })
-      .catch(() => {});
-}
 
 // 获取表格数据
 const getData = (page:any,st:any) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page='+page,
+    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page='+page,
     headers: { }
   };
 
@@ -424,7 +193,7 @@ const getMyClass = () => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/teacher/getclass',
+    url: 'http://localhost:8080/teacher/getclass',
     headers: globeHeaders
   };
 
@@ -457,7 +226,7 @@ const insertClass = () => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/teacher/joinclass?classid='+clazz.value,
+    url: 'http://localhost:8080/teacher/joinclass?classid='+clazz.value,
     headers: globeHeaders,
   };
 
@@ -482,7 +251,7 @@ const handleDelete = (index: number,row: any) => {
         let config = {
           method: 'get',
           maxBodyLength: Infinity,
-          url: proxy?.$baseURL+'/teacher/deleteClass?classid='+row.id,
+          url: 'http://localhost:8080/teacher/deleteClass?classid='+row.id,
           headers: globeHeaders
         };
 
@@ -495,16 +264,13 @@ const handleDelete = (index: number,row: any) => {
               console.log(error);
             });
 
+
+
         ElMessage.success('删除成功');
         tableData.value.splice(index, 1);
       })
       .catch(() => {});
 };
-const planVisible = ref(false);
-
-
-
-
 
 // 表格编辑时弹窗和保存
 const editVisible = ref(false);
@@ -519,7 +285,7 @@ const toBeCounselor = (index: number, row: any) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/teacher/regcor?classid='+row.id,
+    url: 'http://localhost:8080/teacher/regcor?classid='+row.id,
     headers: globeHeaders
   };
 
@@ -539,7 +305,7 @@ const retiredCounselor = (index: number, row: any) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/teacher/retirecor?classid='+row.id,
+    url: 'http://localhost:8080/teacher/retirecor?classid='+row.id,
     headers: globeHeaders
   };
 
@@ -564,7 +330,7 @@ const handleEdit = (index: number, row: any) => {
 
 // 设置年级状态
 const handleChange1 = (val: string[]) => {
-  let url = proxy?.$baseURL+'/grades?status='+status.value
+  let url = 'http://localhost:8080/grades?status='+status.value
 
   let config = {
     method: 'get',
@@ -585,7 +351,7 @@ const handleChange1 = (val: string[]) => {
 
 //获取正常的年级
 const getSelectGrade = () => {
-  let url = proxy?.$baseURL+'/grades?status=normal'
+  let url = 'http://localhost:8080/grades?status=normal'
 
   let config = {
     method: 'get',
@@ -611,7 +377,7 @@ const handleChange2 = (val: string[]) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1',
+    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page=1',
     headers: { }
   };
 
@@ -631,7 +397,7 @@ const handleChange3 = (val: string[]) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1&dept='+dept.value,
+    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page=1&dept='+dept.value,
     headers: { }
   };
 
@@ -650,7 +416,7 @@ const getAllDept = () =>{
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: proxy?.$baseURL+'/depts',
+    url: 'http://localhost:8080/depts',
     headers: { }
   };
 

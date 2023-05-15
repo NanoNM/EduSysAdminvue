@@ -6,7 +6,7 @@
         <el-select v-model="dept2" @change="" style="margin-right: 1%">
           <el-option v-for="dept in depts2" :label="dept['deptName']" :value="dept['id']"></el-option>
         </el-select>
-
+        <span style="margin-left: 1%" class="label">班级名：</span>
         <el-input v-model="query.className" placeholder="班级名" class="handle-input mr10"></el-input>
         <span class="mr10">
           <span style="margin-left: 1%" class="label">年级：</span>
@@ -50,9 +50,6 @@
 
         <el-table-column label="操作" width="220" align="center">
           <template #default="scope">
-            <el-button text :icon="Edit" @click="addToMyClass(scope.$index, scope.row)" v-permiss="15">
-              添加到我的班级
-            </el-button>
             <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
               编辑
             </el-button>
@@ -96,11 +93,13 @@
 </template>
 
 <script setup lang="ts" name="basetable">
-import { ref, reactive } from 'vue';
+import {ref, reactive, getCurrentInstance, ComponentInternalInstance} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
 import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
+
 let headers = {
   'token':localStorage.getItem('jwtToken')
 }
@@ -141,7 +140,7 @@ const getData = (page:any,st:any) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page='+page,
+    url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page='+page,
     headers: { }
   };
 
@@ -172,13 +171,14 @@ const insertClass = () => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/admin/create/class?grade='+grade.value+'&name='+query.className+'&dept='+dept2.value,
+    url: proxy?.$baseURL+'/admin/create/class?grade='+grade.value+'&name='+query.className+'&dept='+dept2.value,
     headers: { }
   };
 
   axios.request(config)
       .then((response) => {
         console.log(JSON.stringify(response.data));
+        getData(1,1)
       })
       .catch((error) => {
         console.log(error);
@@ -189,7 +189,7 @@ const insertClass = () => {
 // 删除操作
 const handleDelete = (index: number,row: any) => {
   // 二次确认删除
-  ElMessageBox.confirm('确定要删除吗？', '提示', {
+  ElMessageBox.confirm('注意！删除可会导致该班级学生丢失班级信息！！！！ 确定删除？', '提示', {
     type: 'warning'
   })
       .then(() => {
@@ -197,20 +197,26 @@ const handleDelete = (index: number,row: any) => {
         let config = {
           method: 'get',
           maxBodyLength: Infinity,
-          url: 'http://localhost:8080/admin/delete/user?userno='+row.userNo,
+          url: 'http://localhost:8080/class/deleteclass?id=' + row.id,
           headers: { }
         };
 
         axios.request(config)
             .then((response) => {
-              console.log(JSON.stringify(response.data));
+              if (response.data.status == "OK"){
+                ElMessage.success(response.data.message);
+                tableData.value.splice(index, 1);
+              }
+              else {
+                ElMessage.success(response.data.message);
+              }
             })
             .catch((error) => {
-              console.log(error);
+              ElMessage.success(error.response.data.message);
+
             });
 
         ElMessage.success('删除成功');
-        tableData.value.splice(index, 1);
       })
       .catch(() => {});
 };
@@ -218,6 +224,7 @@ const handleDelete = (index: number,row: any) => {
 // 表格编辑时弹窗和保存
 const editVisible = ref(false);
 let form = reactive({
+  id:'',
   className: '',
   year: '',
 });
@@ -232,19 +239,42 @@ const addToMyClass = (index: number, row: any) => {
 const handleEdit = (index: number, row: any) => {
   console.log(row)
   idx = index;
+  form.id = row.id
   form.className = row.className;
   form.year = grade.value;
   editVisible.value = true;
 };
-// 保存编辑的老师
+// 保存编辑的班级
 const saveEdit = () => {
+
+  console.log(form)
+  let config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: 'http://localhost:8080/class/updateclass?className='+form.className+'&classYear='+form.year+'&id='+form.id,
+    headers: { }
+  };
+
+  axios.request(config)
+      .then((response) => {
+        if (response.data.status == "OK"){
+          ElMessage.success(response.data.message)
+          getData(1,1)
+          editVisible.value = false
+        }else {
+          ElMessage.error(response.data.message)
+        }
+      })
+      .catch((error) => {
+        ElMessage.error(error.response.data.message)
+      });
 
 
 
 };
 
 const handleChange1 = (val: string[]) => {
-  let url = 'http://localhost:8080/grades?status='+status.value
+  let url = proxy?.$baseURL+'/grades?status='+status.value
 
   let config = {
     method: 'get',
@@ -264,7 +294,7 @@ const handleChange1 = (val: string[]) => {
 };
 
 const getSelectGrade = () => {
-  let url = 'http://localhost:8080/grades?status=normal'
+  let url = proxy?.$baseURL+'/grades?status=normal'
 
   let config = {
     method: 'get',
@@ -289,7 +319,7 @@ const handleChange2 = (val: string[]) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page=1',
+    url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1',
     headers: { }
   };
 
@@ -308,7 +338,7 @@ const handleChange3 = (val: string[]) => {
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/class/classes?grade='+grade.value+'&page=1&dept='+dept.value,
+    url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1&dept='+dept.value,
     headers: { }
   };
 
@@ -328,7 +358,7 @@ const getAllDept = () =>{
   let config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: 'http://localhost:8080/depts',
+    url: proxy?.$baseURL+'/depts',
     headers: { }
   };
 
