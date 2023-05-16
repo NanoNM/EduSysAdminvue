@@ -16,15 +16,25 @@
         <el-table-column prop="curriculum['credit']" label="学分"></el-table-column>
 
           <el-table-column #default="scope" label="年级">
+<!--            <span >{{-->
+<!--                scope.row.curriculum['level']===1?'大一 上'-->
+<!--                    : scope.row.curriculum['level']===2?'大一 下'-->
+<!--                        : scope.row.curriculum['level']===3?'大二 上'-->
+<!--                            :scope.row.curriculum['level']===4?'大二 下'-->
+<!--                                :scope.row.curriculum['level']===5?'大三 上'-->
+<!--                                    :scope.row.curriculum['level']===6?'大三 下'-->
+<!--                                        :scope.row.curriculum['level']===7?'大四 上'-->
+<!--                                            :scope.row.curriculum['level']===8?'大四 下':'大五'-->
+<!--              }}</span>-->
             <span >{{
-                scope.row.curriculum['level']===1?'大一 上'
-                    : scope.row.curriculum['level']===2?'大一 下'
-                        : scope.row.curriculum['level']===3?'大二 上'
-                            :scope.row.curriculum['level']===4?'大二 下'
-                                :scope.row.curriculum['level']===5?'大三 上'
-                                    :scope.row.curriculum['level']===6?'大三 下'
-                                        :scope.row.curriculum['level']===7?'大四 上'
-                                            :scope.row.curriculum['level']===8?'大四 下':'大五'
+                scope.row.curriculum['level']===1?'大一'
+                    : scope.row.curriculum['level']===2?'大一'
+                        : scope.row.curriculum['level']===3?'大二'
+                            : scope.row.curriculum['level']===4?'大二'
+                                : scope.row.curriculum['level']===5?'大三'
+                                    : scope.row.curriculum['level']===6?'大三'
+                                        : scope.row.curriculum['level']===7?'大四'
+                                            : scope.row.curriculum['level']===8?'大四':'大五'
               }}</span>
           </el-table-column>
 

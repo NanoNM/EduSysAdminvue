@@ -186,7 +186,7 @@ const handlePageChange = (val: number) => {
 // 删除操作
 const handleDelete = (index: number,row: any) => {
   // 二次确认删除
-  ElMessageBox.confirm('十分不建议的操作，您可以编辑年级使其处于结业状态（学生老师不会访问到），年级可能包含班级，删除年级会删除关联年级，确定要删除么？', '警告', {
+  ElMessageBox.confirm('十分不建议的操作，您可以编辑年级使其处于结业 (graduated) 状态（学生老师不会访问到），年级可能包含班级，删除年级会删除关联年级，确定要删除么？', '警告', {
     type: 'warning'
   })
       .then(() => {

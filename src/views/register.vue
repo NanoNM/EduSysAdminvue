@@ -127,7 +127,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
   let data = JSON.stringify({
     "name": param.username,
     "passwd": param.password,
-    "employeeID": param.username,
+    "employeeID": param.employeeID,
     "regKey": param.regkey
   });
 

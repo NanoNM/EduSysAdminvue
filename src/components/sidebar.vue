@@ -139,6 +139,11 @@ const admin=[
         index: '/admin-course-manger',
         title: '课程管理',
         permiss: '1',
+      },
+      {
+        index: '/selected-manger',
+        title: '选课批准',
+        permiss: '1,2',
       }
     ]
   },
@@ -202,6 +207,11 @@ const teacher=[
       {
         index: '/course-manger',
         title: '课程管理',
+        permiss: '2',
+      },
+      {
+        index: '/selected-manger',
+        title: '选课批准',
         permiss: '2',
       }
     ]

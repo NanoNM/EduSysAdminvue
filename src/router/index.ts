@@ -78,6 +78,15 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/course-manger.vue'),
             },
             {
+                path: '/selected-manger',
+                name: 'selected-manger',
+                meta: {
+                    title: '选课批准',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/selected-manger.vue'),
+            },
+            {
                 path: '/exam-info-release',
                 name: 'exam-info-release',
                 meta: {
