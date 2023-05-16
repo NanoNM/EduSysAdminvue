@@ -29,6 +29,10 @@ import axios, {AxiosResponse} from "axios";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
+let globeHeaders = {
+  'token':localStorage.getItem('jwtToken')
+}
+
 const query = reactive({
   nums: 1,
   pageIndex:1
@@ -44,7 +48,7 @@ const getData = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/admin/get/key',
-    headers: { }
+    headers: globeHeaders
   };
   axios.request(config)
       .then((response) => {
@@ -66,7 +70,7 @@ const genRegKey = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/admin/gen/key?nums='+query.nums,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)

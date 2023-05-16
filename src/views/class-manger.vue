@@ -100,7 +100,7 @@ import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
 
@@ -141,7 +141,7 @@ const getData = (page:any,st:any) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page='+page,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -172,7 +172,7 @@ const insertClass = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/admin/create/class?grade='+grade.value+'&name='+query.className+'&dept='+dept2.value,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -198,7 +198,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: 'http://localhost:8080/class/deleteclass?id=' + row.id,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
@@ -252,7 +252,7 @@ const saveEdit = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/class/updateclass?className='+form.className+'&classYear='+form.year+'&id='+form.id,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -280,7 +280,7 @@ const handleChange1 = (val: string[]) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: url,
-    headers: { }
+    headers: globeHeaders
   };
 
 
@@ -300,7 +300,7 @@ const getSelectGrade = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: url,
-    headers: { }
+    headers: globeHeaders
   };
 
 
@@ -320,7 +320,7 @@ const handleChange2 = (val: string[]) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -339,7 +339,7 @@ const handleChange3 = (val: string[]) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1&dept='+dept.value,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -359,7 +359,7 @@ const getAllDept = () =>{
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/depts',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)

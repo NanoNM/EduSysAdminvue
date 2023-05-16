@@ -570,7 +570,7 @@ const handleChange1 = (val: string[]) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: url,
-    headers: { }
+    headers: globeHeaders
   };
 
 
@@ -591,7 +591,7 @@ const getSelectGrade = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: url,
-    headers: { }
+    headers: globeHeaders
   };
 
 
@@ -612,7 +612,7 @@ const handleChange2 = (val: string[]) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -632,7 +632,7 @@ const handleChange3 = (val: string[]) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/class/classes?grade='+grade.value+'&page=1&dept='+dept.value,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -651,7 +651,7 @@ const getAllDept = () =>{
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/depts',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)

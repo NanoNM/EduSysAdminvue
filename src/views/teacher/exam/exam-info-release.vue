@@ -135,7 +135,7 @@ const onGradeChange = () =>{
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/class/classes?grade=' + examInfo.exam_year,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -153,7 +153,7 @@ const releaseCl = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/grades?status=normal',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(grades)
@@ -167,7 +167,7 @@ const releaseCl = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/depts',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -202,7 +202,7 @@ const release = () => {
           examInfo.start_time+'&grade='+
           examInfo.exam_year+'&deptid='+
           examInfo.exam_dept,
-      headers: { }
+      headers: globeHeaders
     };
 
     axios.request(config)
@@ -230,7 +230,7 @@ const release = () => {
           examInfo.exam_local+'&time='+
           examInfo.start_time+'&grade='+examInfo.exam_year
       ,
-      headers: { }
+      headers: globeHeaders
     };
 
     axios.request(year)
@@ -258,7 +258,7 @@ const release = () => {
           examInfo.exam_local+'&time='+
           examInfo.start_time+'&class='+
           examInfo.exam_class,
-      headers: { }
+      headers: globeHeaders
     };
 
     axios.request(classes)
@@ -323,7 +323,7 @@ const getData = (page:any,st:any) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/exam/exams',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -362,7 +362,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: 'http://localhost:8080/exam/delete?examID='+row.id,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)

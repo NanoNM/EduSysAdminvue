@@ -91,7 +91,8 @@ const createNotice = () => {
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/admin/create/edunotice',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'token':localStorage.getItem('jwtToken')
     },
     data : data
   };
@@ -117,7 +118,7 @@ const getNoticeData = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/admin/edunotices',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -140,7 +141,7 @@ const handleDelete = (index:Any,row:Any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: 'http://localhost:8080/admin/remove/edunotice?id='+row.id,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)

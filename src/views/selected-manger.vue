@@ -45,7 +45,7 @@ import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
 
@@ -105,7 +105,7 @@ const getData = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/student/selected/getempid?empid='+empid.value,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -143,7 +143,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: 'http://localhost:8080/student/selected/reject?id=' + row.id,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
@@ -174,7 +174,7 @@ const handleEdit = (index: number, row: any) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/student/selected/pass?id=' + row.id,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)

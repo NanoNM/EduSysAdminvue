@@ -133,9 +133,10 @@ import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
+
 interface TableItem {
   id: number;
   name: string;
@@ -162,7 +163,7 @@ const getData = (page:number) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/admin/users?page='+page+'&role=stu',
-    headers: headers
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -205,7 +206,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: proxy?.$baseURL+'/admin/delete/user?userno='+row.userNo,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
@@ -269,7 +270,7 @@ const createInfo = (index: number, row: any) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/student/moreInfo?stid='+row.employeeId,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -348,7 +349,8 @@ const infoInsert = () => {
     maxBodyLength: Infinity,
     url: url,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'token':localStorage.getItem('jwtToken')
     },
     data : data
   };
@@ -375,7 +377,7 @@ const saveEdit = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/admin/update/student?userno='+form.userNo+'&username='+form.name+'&empID='+form.empID+'&role='+form.role,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)

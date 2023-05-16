@@ -97,7 +97,7 @@ import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
 interface TableItem {
@@ -126,7 +126,7 @@ const getData = (page:number) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/grades?page='+query.pageIndex,
-    headers: headers
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -158,7 +158,7 @@ const handleInsert = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/admin/create/grade?year='+query.garde+'&name='+query.garde_name,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -194,7 +194,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: proxy?.$baseURL+'/admin/delete/grade?grade='+row.gradeName,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
@@ -254,7 +254,9 @@ const saveEdit = () => {
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/grade/update',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'token':localStorage.getItem('jwtToken')
+
     },
     data : data
   };

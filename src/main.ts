@@ -7,6 +7,7 @@ import { usePermissStore } from './store/permiss';
 import 'element-plus/dist/index.css';
 import './assets/css/icon.css';
 import axios from "axios";
+import {ElMessage} from "element-plus";
 
 const app = createApp(App);
 app.use(createPinia());
@@ -38,6 +39,43 @@ app.directive('permiss', {
     },
 });
 
+axios.interceptors.response.use(
+    response => {
+        return response;
+    },
+    error => {
+        if (error.response.status == 403) {
+            if (error.response.data.statusCode == 'INVALID_LOGIN'){
+                ElMessage.error("请重新登录！ " + error.response.data.message)
+                let config = {
+                    method: 'get',
+                    maxBodyLength: Infinity,
+                    url: 'http://localhost:8080/user/lgout',
+                    headers: {
+                        'token': localStorage.getItem('jwtToken')
+                    }
+                };
 
+                axios.request(config)
+                    .then((response) => {
+                        if (response.data['status'] == 'ok'){
+                            localStorage.removeItem('ms_username');
+                            localStorage.removeItem('jwtToken');
+                            localStorage.removeItem('ms_keys');
+                        }
+                    })
+                    .catch((error) => {
+                        ElMessage.error("错误! "+error);
+                    });
+                ElMessage.success("登出成功");
+                router.push('/login');
+            }
+            console.log(error.response.data)
+        } else {
+            // message.error("出错了");
+            // return Promise.reject(error);
+        }
+    }
+);
 
 app.mount('#app');

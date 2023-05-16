@@ -80,7 +80,7 @@ import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
 interface TableItem {
@@ -109,7 +109,7 @@ const getData = (page:number) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/admin/users?page='+page+'&role=thr',
-    headers: headers
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -152,7 +152,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: proxy?.$baseURL+'/admin/delete/user?userno='+row.userNo,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
@@ -192,7 +192,7 @@ const saveEdit = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/admin/update/teacher?userno='+form.userNo+'&username='+form.name+'&empID='+form.empID+'&role='+form.role,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)

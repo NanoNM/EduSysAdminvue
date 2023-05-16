@@ -162,7 +162,7 @@ import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
 
@@ -228,6 +228,8 @@ const insertCourse = () => {
     url: 'http://localhost:8080/course/create',
     headers: {
       'Content-Type': 'application/json',
+      'token':localStorage.getItem('jwtToken')
+
     },
     data : data
   };
@@ -262,7 +264,7 @@ const getData = (page:number) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/admin/course',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -306,7 +308,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: 'http://localhost:8080/course/remove?id='+row.curriculum.id,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
@@ -373,7 +375,7 @@ const handleEdit = (index: number, row: any) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/depts',
-    headers: { }
+    headers: globeHeaders
   };
 
 
@@ -427,7 +429,7 @@ const getAllDept = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: proxy?.$baseURL+'/depts',
-    headers: { }
+    headers: globeHeaders
   };
 
 
@@ -474,7 +476,9 @@ const saveEdit = () => {
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/course/update',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'token':localStorage.getItem('jwtToken')
+
     },
     data : data
   };

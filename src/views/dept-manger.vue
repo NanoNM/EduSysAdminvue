@@ -33,7 +33,7 @@ import { fetchData } from '../api/index';
 import axios, {AxiosResponse} from "axios";
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-let headers = {
+let globeHeaders = {
   'token':localStorage.getItem('jwtToken')
 }
 
@@ -49,7 +49,7 @@ const selectedDeptChange = (val:Any) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/dept?id=' + val,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -69,7 +69,7 @@ const updateDept = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/updatedept?deptid='+selectedDept.value+'&edusys='+eduSysUpdate.value,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -97,7 +97,7 @@ const deleteDept = () => {
           method: 'get',
           maxBodyLength: Infinity,
           url: 'http://localhost:8080/delete/dept?id=' + selectedDept.value,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
@@ -121,7 +121,7 @@ const createDept = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/create/dept?deptname=' + createDeptName.value + '&edusys=' + eduSys.value,
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -145,7 +145,7 @@ const getAllDept = () => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/depts',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)

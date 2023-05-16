@@ -146,7 +146,9 @@ const releaseExamResult = () => {
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/exam/insertResults',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'token':localStorage.getItem('jwtToken')
+
     },
     data : data
   };
@@ -174,7 +176,7 @@ const getData = (page:any,st:any) => {
     method: 'get',
     maxBodyLength: Infinity,
     url: 'http://localhost:8080/exam/getResults',
-    headers: { }
+    headers: globeHeaders
   };
 
   axios.request(config)
@@ -213,7 +215,7 @@ const handleDelete = (index: number,row: any) => {
           method: 'get',
           maxBodyLength: Infinity,
           url: 'http://localhost:8080/exam/deleteResults?id='+row.id,
-          headers: { }
+          headers: globeHeaders
         };
 
         axios.request(config)
